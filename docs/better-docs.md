@@ -1,5 +1,8 @@
 # BETTER HASKELL DOCUMENTATION
 
+- oop编程 -> 组织
+- 函数式编程 -> 组合
+
 ## newtype
 
 - 字面解释, synax查看其他文章
@@ -49,7 +52,10 @@ en :: englishString
 en = englishString rawEnglish
 
 -- func
--- 注意这里的(chineseString str) 即模式匹配, 即将str绑定到参数内部的string上
+-- 注意这里的(chineseString str) 即模式匹配(pattern matche)
+-- 即将str绑定到参数内部的string上
+-- func <pattern> = <expression>
+
 -- englishString
 getch :: chineseString -> chineseString
 getch (chineseString str) = 
@@ -62,5 +68,49 @@ getch (englishString str) =
 getchineseStringToString :: chineseString -> String
 getchineseStringToString (chineseString content) = 
   content
+
+```
+
+## chaining functions 链接函数（组合）
+
+- <.> or <∘>组合操作符(compose)
+- 函数签名为 (.) :: (b -> c) -> (a -> b) -> a -> c
+- a, b, c, 都为某种类型 or 参数多态性 or 泛型
+- (.) f g x = f (g x)
+
+> 函数组合. 接受f(b)=c, g(a)=b, 最终得到为a->c的新函数
+
+- 等价于 (.) f g = \x -> f (g x)
+- 数学中的函数组合 (f ∘ g)(x) = f(g(x))
+
+```haskell
+-- try type check
+-- 我们有
+Structure :: String -> Structure
+el "p" :: String -> String
+(.) :: (b -> c) -> (a -> b) -> a -> c
+
+-- 1. 匹配第一个参数
+-- 实际第一个参数 Structure :: String -> Structure
+-- .期望 b -> c, a -> b
+
+-- 统一过程:
+-- String -> Structure == b -> c
+-- > b ~ String, c ~ Structure
+-- (.) :: (String -> Structure) -> (a -> String) -> (a -> Structure)
+
+-- 2. 匹配第二个参数
+-- 实际 el "p" :: String -> String
+-- .预期 a -> String(b) 
+
+-- 统一过程:
+-- String -> String == a -> String
+-- > a ~ String, b ~ String
+-- (.) :: (String -> Structure) -> (String -> String) -> (String -> Structure)
+
+-- 最终得到
+Sturcture . el "p" :: String -> Structure
+
+
 
 ```
