@@ -9,7 +9,7 @@ myhtml =
     "my title"
     (
       append_ 
-        (h1_ "hello, weg generator")
+        (h1_ "hello, weg <> generator")
         (
           append_ 
             (p_ "this is my webpage.")

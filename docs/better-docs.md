@@ -112,3 +112,37 @@ el "p" :: String -> String
 Sturcture . el "p" :: String -> Structure
 
 ```
+
+## let experssion
+
+```haskell
+-- example
+escape :: String -> String
+escape
+  let
+    escapeChar c =
+      case c of
+        '<' -> "&lt;"
+        '>' -> "&gt;"
+        _ -> [c]
+  in
+    concat . map escapeChar
+
+-- 1. 输入字符串
+escpae "a<b>"
+
+-- 2. 转化为字符列表
+"a<b>" = ['a', '<', 'b', '>']
+
+-- 3. map escapeChar 每个字符
+-- 对[]里的每个元素使用escapeChar函数
+map escapeChar ['a', '<', 'b', '>'] 
+= [escapeChar 'a',escapeChar '<',escapeChar 'b',escapeChar '>']
+= [['a'], "&lt;", ['b'], "&gt;"]
+= ["a", "&lt;", "b", "&gt;"]
+
+-- 4. concat 连接所有字符串
+concat ["a", "&lt;", "b", "&gt;"]
+= "a&lt;b&gt;"
+
+```
