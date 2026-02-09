@@ -115,6 +115,8 @@ Sturcture . el "p" :: String -> Structure
 
 ## let experssion
 
+> 一般意义上只执行in部分表达式（其中可能调用let部分定义内容）
+
 ```haskell
 -- example
 escape :: String -> String
@@ -150,10 +152,15 @@ concat ["a", "&lt;", "b", "&gt;"]
 ## 自定义标记语言
 
 > 标记语言规则:
+>
 > 标题: 若干*字符前缀
+>
 > 段落: 一组没有空行的文本
+>
 > 无序列表: 一组文本, 每行以 - 开头
+>
 > 有序列表: 一组文本, 每行以 # 开头
+>
 > 代码块: 一组文本, 每行以 > 开头
 
 ## 递归与累积信息
@@ -259,3 +266,133 @@ base_case
 
 - 只在需要时才求值计算
 
+- [reference](https://gilmi.me/blog/post/2020/10/01/substitution-and-equational-reasoning)
+
+```haskell
+-- example 同上
+factorial :: Integer -> Integer
+factorial = impl 1
+
+impl :: Integer -> Integer -> Integer
+impl = 
+  \acc n ->
+    if n == 0
+      then 
+        acc
+      else
+        impl (n * acc) (n - 1)
+
+-- 推演
+factorial 3 --> 
+
+impl 1 3 
+------> 
+
+( \acc n ->
+   if n == 0
+     then 
+       acc
+     else
+       impl (n * acc) (n - 1)
+) 1 3 
+------>
+
+if 3 == 0
+  then 
+    1
+  else
+    impl (3 * 1) (3 - 1)
+------>
+
+if False
+  then
+    1
+  else
+    impl (3 * 1) (3 - 1)
+------>
+
+impl (3 * 1) (3 - 1)
+------>
+
+( \acc n ->
+   if n == 0
+     then 
+       acc
+     else
+       impl (n * acc) (n - 1)
+
+) (3 * 1) (3 - 1)
+------>
+
+if (3 - 1) == 0
+  then
+    (3 * 1)
+  else
+    impl ((3 - 1) * (3 * 1)) ((3 - 1) - 1)
+------>
+
+if False
+  then
+    3
+  else
+    impl (2 * 3) (2 - 1)
+------>
+
+impl (2 * 3) (2 - 1)
+------> 
+
+(
+  \acc n ->
+  if n == 0
+    then 
+      acc
+    else
+      impl (n * acc) (n - 1)
+) (2 * 3) (2 - 1)
+------>
+
+if (2 - 1) == 0
+  then
+    (2 * 3)
+  else
+    impl ((2 - 1) * (2 * 3)) ((2 - 1) - 1)
+------>
+
+if False
+  then
+    6
+  else
+    impl (1 * 6) (1 - 1)
+------>
+
+impl (1 * 6) (1 - 1)
+------>
+
+(
+  \acc n ->
+  if n == 0
+    then 
+      acc
+    else
+      impl (n * acc) (n - 1)
+) (1 * 6) (1 - 1)
+------>
+
+if (1 - 1) == 0
+  then
+    (1 * 6)
+  else
+    impl ((1 - 1) * (1 * 6)) ((1 - 1) -1)
+------>
+
+if True
+  then
+    6
+  else
+    impl (0 * 6) (0 - 1)
+------>
+
+6
+
+
+```
