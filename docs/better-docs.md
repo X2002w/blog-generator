@@ -156,3 +156,106 @@ concat ["a", "&lt;", "b", "&gt;"]
 > 有序列表: 一组文本, 每行以 # 开头
 > 代码块: 一组文本, 每行以 > 开头
 
+## 递归与累积信息
+
+```haskell
+-- example
+-- 有两个操作increment, decrement 可以作用在每个数上
+-- 将一个数逐个传递给另一个数, 并同时一加一减
+
+function add(n, m) {
+  while (m != 0) {
+    n = increment(n);
+    m = decrement(m);
+  }
+  return n;
+}
+-------
+type add(type n, type m)
+{
+  while (m != 0)
+  {
+    increment(n);
+    decrement(m);
+  }
+  return n;
+}
+
+-- haskell 
+-- 通过递归来模拟可变状态的迭代
+add n m = 
+  if m /= 0
+    then add (increment n) (decrement m)
+    else n
+
+-- 使用递归往往会创建多个调用栈sp
+-- hadkell -> 尾调用消除, 函数调用的结果就是该函数的结果时
+-- 可以直接丢弃当前stack frame
+
+```
+
+> 汇编层面的尾调用优化, 使用jmp, 而不是call
+
+```haskell
+factorialNonTail 5
+= 5 * factorialNonTail 4
+= 5 * (4 * factorialNonTail 3)
+= 5 * (4 * (3 * factorialNonTail 2))
+= 5 * (4 * (3 * (2 * factorialNonTail 1)))
+= 5 * (4 * (3 * (2 * 1)))
+= 120
+
+-- 内存栈帧（需要记住每层的乘法）：
+[帧5: 需要乘以5]
+[帧4: 需要乘以4]
+[帧3: 需要乘以3]
+[帧2: 需要乘以2]
+[帧1: 返回1]
+-- 需要 O(n) 栈空间
+
+--------尾调用优化
+factorialTail 5 1
+= factorialTail 4 5      -- 5 * 1
+= factorialTail 3 20     -- 4 * 5
+= factorialTail 2 60     -- 3 * 20
+= factorialTail 1 120    -- 2 * 60
+= 120
+
+-- 内存栈帧（每次复用同一个栈帧）：
+[帧: factorialTail 5 1] → 计算新参数 → [帧: factorialTail 4 5]
+[帧: factorialTail 4 5] → 计算新参数 → [帧: factorialTail 3 20]
+...
+-- 只需要 O(1) 栈空间
+
+----------汇编层面实现尾调用消除----------
+factorialTail :: Integer -> Integer -> Integer
+factorialTail n acc = 
+  if n <= 1
+    then acc
+    else factorialTail (n - 1) (acc * n)
+
+```
+
+```assembly
+
+factorialTail:
+  cmp n, 1
+  jle base_case
+
+  # 递归情况
+  mul acc, n
+  dec n
+  jmp factorialTail # 直接跳回函数开头, 而不是call调用
+  # call 会压入下一条指令的返回地址到划定的stack
+  # jmp 只是跳转, 不增加栈深度
+
+base_case
+  mov result, acc
+  ret
+
+```
+
+## 懒惰求值
+
+- 只在需要时才求值计算
+
