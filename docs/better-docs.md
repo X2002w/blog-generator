@@ -401,6 +401,121 @@ if True
 
 ## 一般/相互 递归
 
+## markup 段落分析
+
+```text
+第一行内容
+第二行内容
+
+第三段第一行
+第三段第二行
+```
+
+> 转化为haskell列表: txts = ["第一行内容", "第二行内容", "", "第三段第一行", "第三段第二行"]
+
+```haskell
+
+parserLines [] ["第一行内容", "第二行内容", "", "第三段第一行", "第三段第二行"]
+-- currentParagraph = [] (空，准备收集第一个段落)
+
+case txts of
+  [] -> [paragraph] -- 不匹配, txts非空
+  currentLine : rest -> 
+  -- currentLine = "第一行内容"
+  -- rest = ["第二行内容", "", "第三段第一行", "第三段第二行"]
+    if trim "第一行内容" == ""
+    -- trim后是"第一行内容" ≠ ""，所以走else分支
+      then 
+        paragraph : parserLines [] rest
+      else
+        parserLines ("第一行内容" : []) ["第二行内容", "", "第三段第一行", "第三段第二行"]
+
+-- 新调用
+parserLines ["第一行内容"] ["第二行内容", "", "第三段第一行", "第三段第二行"]
+
+case ["第二行内容", "", "第三段第一行", "第三段第二行"] of
+  currentLine : rest ->  
+  -- currentLine = "第二行内容", rest = ["", "第三段第一行", "第三段第二行"]
+    if trim "第二行内容" == ""  
+    -- 非空，走else分支
+      then ...
+      else parserLines ("第二行内容" : ["第一行内容"]) ["", "第三段第一行", "第三段第二行"]
+
+-- 新调用
+
+parserLines ["第二行内容", "第一行内容"] ["", "第三段第一行", "第三段第二行"]
+
+-- 处理""(空行)
+case ["", "第三段第一行", "第三段第二行"] of
+  currentLine : rest ->  
+  -- currentLine = "", rest = ["第三段第一行", "第三段第二行"]
+  if trim "" == ""
+  -- trim "" = "" ,then
+    then
+      paragraph : parserLines [] ["第三段第一行", "第三段第二行"]
+
+-- 先计算paragraph
+currentParagraph = ["第二行内容", "第一行内容"]
+reverse currentParagraph = ["第一行内容", "第二行内容"]
+unlines ["第一行内容", "第二行内容"] = "第一行内容\n第二行内容"
+paragraph = Paragraph "第一行内容\n第二行内容"
+
+-- 新调用
+(Paragraph "第一行内容\n第二行内容") : parserLines [] ["第三段第一行", "第三段第二行"]
+-- 目前为
+[Paragraph "第一行内容\n第二行内容"] ++ (parserLines [] ["第三段第一行", "第三段第二行"]的结果)
+
+
+parserLines [] ["第三段第一行", "第三段第二行"]
+↓
+case ["第三段第一行", "第三段第二行"] of
+  currentLine : rest ->  
+  -- currentLine = "第三段第一行", rest = ["第三段第二行"]
+    if trim "第三段第一行" == ""  
+    -- 非空，走else分支
+      then 
+        ...
+      else 
+        parserLines ("第三段第一行" : []) ["第三段第二行"]
+-- 新调用
+parserLines ["第三段第一行"] ["第三段第二行"]
+
+case ["第三段第二行"] of
+  currentLine : rest ->  
+  -- currentLine = "第三段第二行", rest = []
+    if trim "第三段第二行" == ""  
+      -- 非空，走else分支
+      then 
+        ...
+      else 
+        parserLines ("第三段第二行" : ["第三段第一行"]) []
+-- 新调用
+parserLines ["第三段第二行", "第三段第一行"] []
+
+-- 空列表, 终止递归
+case [] of
+  [] -> [paragraph]  -- 匹配成功！
+
+-- 计算最终的paragraph
+currentParagraph = ["第三段第二行", "第三段第一行"]
+reverse currentParagraph = ["第三段第一行", "第三段第二行"]
+unlines ["第三段第一行", "第三段第二行"] = "第三段第一行\n第三段第二行"
+paragraph = Paragraph "第三段第一行\n第三段第二行"
+
+-- 返回
+[Paragraph "第三段第一行\n第三段第二行"]
+
+-- 最终得到
+(Paragraph "第一行内容\n第二行内容") : [Paragraph "第三段第一行\n第三段第二行"]
+= [Paragraph "第一行内容\n第二行内容", Paragraph "第三段第一行\n第三段第二行"]
+
+-- 即
+[
+  Paragraph "第一行内容\n第二行内容",
+  Paragraph "第三段第一行\n第三段第二行"
+]
+```
+
 ## TODO
 
 - [ ] 惰性求值支持无限递归

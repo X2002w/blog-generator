@@ -28,10 +28,12 @@ parserLines currentParagraph txts =
     paragraph = Paragraph (unlines (reverse currentParagraph))
   in
     case txts of 
+      -- 没有剩余文本了, 结束递归
       [] -> [paragraph]
       currentLine : rest ->
         if trim currentLine == ""
           then
+            -- 构建输出列表
             paragraph : parserLines [] rest
           else
             parserLines (currentLine : currentParagraph) rest
