@@ -516,6 +516,117 @@ paragraph = Paragraph "第三段第一行\n第三段第二行"
 ]
 ```
 
+## 类型类 type class
+
+- 无类型类时
+
+```haskell
+-- 不同data的类型
+data Person = Person String Int
+data Car = Car String String
+data House = House String Int
+
+-- 使用字符串形式表示
+personToString :: Person -> String
+personToString (Person name age) =
+  name ++ "(" ++ show age ++ " years old)"
+
+carToString :: Car -> String  
+carToString (Car brand model) = brand ++ " " ++ model
+
+...
+
+-- 上述函数名不统一, 不够通用
+
+-- 类型类: 为不同的类型实现同一个接口, 使用同一个函数名
+
+-- 定义接口 (type class)
+class Show a where
+  show :: a -> String
+
+-- 为不同类型实现接口 (实例)
+instance Show Person where
+  show (Person name age) =
+    name ++ "(" ++ show age ++ " years old)"
+
+instance Show Car where
+    show (Car brand model) = brand ++ " " ++ model
+
+...
+
+-- 统一使用show
+> show (Person "Alice" 25)
+"Alice (25 years old)"
+
+> show (Car "Toyota" "Camry")  
+"Toyota Camry"
+
+...
+
+```
+
+- 类型类为接口定义
+- Show 为接口名
+- show :: a -> String 为接口要求实现的方法
+
+```haskell
+class Show a where
+  show :: a -> String
+
+-- 为具体的Person类型提供show方法
+instance Show Person where
+  show (Person name age) = ...
+
+-- 类型约束为 “接口要求”
+
+-- 此函数要求: 传入的类型a 必须是再Show类型类实现了实例的类型
+printSomething :: Show a => a -> IO ()
+printSomething x = putStrLn (show x) 
+
+-- 可以传入任何实现了Show的类型
+> printSomething (Person "Alice" 25)
+Alice (25 years old)
+
+```
+
+- 多个方法的类型类
+
+```haskell
+
+class Eq a where
+  (==) :: a -> a -> Bool
+  (/=) :: a -> a -> Bool
+
+  -- 默认实现: /= 是 == 的反面
+  x /= y = not (x == y)
+
+-- 实现
+instance Eq Person where
+  (Person name1 age1) == (Person name2 age2) =
+    name1 == name2 && age1 == age2
+
+```
+
+- 自动派生 (语法糖)
+- 就是编译器自动生成instance代码
+
+## <>
+
+- 所有操作符本质上还是函数
+
+```haskell
+
+-- 前缀形式（普通函数调用）
+(<>) x y     -- 把操作符放在括号里，当作普通函数
+
+-- 中缀形式（操作符风格）  
+x <> y       -- 操作符在两个参数中间
+
+-- 两者完全等价！
+x <> y     =   (<>) x y
+
+```
+
 ## TODO
 
 - [ ] 惰性求值支持无限递归
