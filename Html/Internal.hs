@@ -49,12 +49,17 @@ el :: String -> String -> String
 el tag content = 
   "<" <> tag <> ">\n" <> content <> "</" <> tag <> ">\n"
 
-append_ :: Structure -> Structure -> Structure
-append_ s1 s2 = 
-  Structure (getStructureString s1 <> getStructureString s2)
+-- append_ :: Structure -> Structure -> Structure
+-- append_ s1 s2 = 
+--  Structure (getStructureString s1 <> getStructureString s2)
 -- 另一种写法
 -- append_ (Structure s1) (Structure s2) = 
 --   Structure (s1 <> s2)
+
+instance Semigroup Structure where
+  (<>) c1 c2 = 
+    Structure (getStructureString c1 <> getStructureString c2)
+
 
 renderHtml :: Html -> String
 -- renderHtml (Html str) = str
