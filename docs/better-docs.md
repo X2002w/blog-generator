@@ -149,6 +149,40 @@ concat ["a", "&lt;", "b", "&gt;"]
 
 ```
 
+## data
+
+- 定义全新的数据类型
+- data 类型名 类型参数 = 构造器1 字段类型 | 构造器2 字段类型 | ...
+- data Bool = Fasle | True
+- data同一时间只能表示一种类型, 但是可以使用 | 来区别不同的类型
+
+> 有参构造器 and 无参构造器
+
+```haskell
+
+-- 无参构造器 -> “标签” or “常量”
+data Brightness = Dark | Bright
+-- Dark 和 Bright 是: 无参构造器 是Brightness的值构造器
+-- 本身即Brightness 类型的值
+
+-- 有参构造器：像是一个"函数"
+data AnsiColor = AnsiColor Brightness EightColor
+-- AnsiColor 是：有参构造器
+-- 它需要传入参数才能得到 AnsiColor 类型的值
+
+-- memary 中的差异
+data Brightness = Dark | Bright
+-- 内存中:
+-- Dark   → [tag=0]  （只是一个标记）
+-- Bright → [tag=1]  （只是一个标记）
+-- 不携带任何额外数据
+
+data AnsiColor = AnsiColor Brightness EightColor
+-- 内存中：
+-- AnsiColor Dark Black → [tag=AnsiColor] [Dark的tag] [Black的tag]
+-- 携带两个字段的数据
+```
+
 ## 自定义标记语言
 
 > 标记语言规则:
