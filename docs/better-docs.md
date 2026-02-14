@@ -552,6 +552,10 @@ paragraph = Paragraph "第三段第一行\n第三段第二行"
 
 ## 类型类 type class
 
+- 一个类型可以有不同类型类的实例，但是只能有同一个类型类的一个实例
+
+> Monoid 幺半群类型类, Int可以同时为 + or *
+
 - 无类型类时
 
 ```haskell
@@ -663,7 +667,34 @@ x <> y     =   (<>) x y
 
 ## 模式匹配 pattern matching
 
+## 类型层次关系
 
+- Kind 是类型的类型, 描述类型如何构造
+- Type Class 是类型的分类, 描述类型有什么能力
+
+```haskell
+
+-- Kind -> 类型的类型
+Type  -- 具体类型的 kind
+Type -> Type  -- 类型构造器的 kind
+
+-- Tyoe class - 类型的分类
+Monoid  -- 对 Type 进行分类
+Foldable  -- 对 Type -> Type 进行分类
+Functor  -- 对 Type -> Type 进行分类
+
+-- Type - 值的类型
+String  -- 属于 Monoid 类
+[Int]   -- 属于 Monoid 类
+Maybe   -- 属于 Foldable 类 (因为 kind 是 Type -> Type)
+[]      -- 属于 Foldable 类
+
+-- 层次4：Value - 具体的值
+"hello"    -- 类型是 String
+[1,2,3]    -- 类型是 [Int]
+Just 3     -- 类型是 Maybe Int
+
+```
 
 ## TODO
 

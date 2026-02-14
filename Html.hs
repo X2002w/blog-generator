@@ -3,8 +3,10 @@ module Html
   , Title
   , Structure
   , html_
+  , ul_
+  , ol_
   , p_
-  , h1_
+  , h_
   , renderHtml
   )
   where
