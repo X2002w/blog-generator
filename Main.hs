@@ -11,27 +11,27 @@ import System.Environment (getArgs)
 
 main :: IO ()
 main = do
-  getArgs >>= \args ->
-    case args of
-      -- 无程序参数, 从stdin读, 写入stdout
-      [] ->
-        getContents >>= \content ->
-          putStrLn (process "Empty title" content)
-      
-      -- 带有输入, 输出文件参数
-      [input, output] ->
-        readFile input >>= \content ->
-          doesFileExist output >>= \exists ->
-            let
-              writeResult = writeFile output (process input content)
-            in
-              if exists
-                then whenIO confirm writeResult
-                else writeResult
-      
-      -- 其他情况
-      _ -> 
-        putStrLn "Usage: runghc Main.hs [-- <input file> <output file>]"
+  args <- getArgs
+  case args of
+    -- 无程序参数, 从stdin读, 写入stdout
+    [] -> do
+      content <- getContents
+      putStrLn (process "Empty title" content)
+    
+    -- 带有输入, 输出文件参数
+    [input, output] -> do
+      content <- readFile input
+      exists <- doesFileExist output
+      let
+        writeResult = writeFile output (process input content)
+      in
+        if exists
+          then whenIO confirm writeResult
+          else writeResult
+    
+    -- 其他情况
+    _ -> 
+      putStrLn "Usage: runghc Main.hs [-- <input file> <output file>]"
 
 
 -- Html.Title -> 网页标题 
@@ -41,18 +41,19 @@ process title = Html.render . convert title . Markup.parse
 
 
 confirm :: IO Bool
-confirm = 
-  putStrLn "Are you sure? (y/n)" *>
-    getLine >>= \answer ->
-      case answer of
-        "y" -> pure True
-        "n" -> pure False
-        _ -> putStrLn "Invalid response. use y or n" *>
-          confirm
+confirm = do
+  putStrLn "Are you sure? (y/n)" 
+  answer <- getLine
+  case answer of
+    "y" -> pure True
+    "n" -> pure False
+    _ -> do
+      putStrLn "Invalid response. use y or n" 
+      confirm
 
 whenIO :: IO Bool -> IO () -> IO ()
-whenIO cond action = 
-  cond >>= \result ->
-    if result 
-      then action
-      else pure ()
+whenIO cond action = do
+  result <- cond
+  if result 
+    then action
+    else pure ()
