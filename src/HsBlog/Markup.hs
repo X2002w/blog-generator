@@ -1,6 +1,6 @@
 -- Markup.hs
 
-module Markup 
+module HsBlog.Markup 
   ( Document
   , Structure(..)
   , parse
@@ -43,7 +43,7 @@ parseLines :: Maybe Structure -> [String] -> Document
 parseLines context txts = 
   case txts of
     -- texts 为空时, 若context有值, 则将其加入结果列表, 否则返回空列表(Nothing)
-    [] -> maybeTolist context
+    [] -> maybeToList context
 
     -- Heading 1 case: 当前行以 '*' 开头, 之后跟一个空格, 然后是标题文本
     ('*' : ' ' : line) : rest ->

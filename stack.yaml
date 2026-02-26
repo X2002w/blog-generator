@@ -1,0 +1,4 @@
+reslover: lts-18.22
+
+packages:
+- .

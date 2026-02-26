@@ -1,9 +1,13 @@
--- Main.hs
-module Main where
+module HsBlog
+  ( main
+  , process
+  )
+  where
 
-import qualified Markup
-import qualified Html
-import Convert (convert)
+import qualified HsBlog.Markup as Markup
+import qualified HsBlog.Html as Html
+import HsBlog.Convert (convert)
+
 
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
@@ -24,10 +28,10 @@ main = do
       exists <- doesFileExist output
       let
         writeResult = writeFile output (process input content)
-      in
-        if exists
-          then whenIO confirm writeResult
-          else writeResult
+
+      if exists
+        then whenIO confirm writeResult
+        else writeResult
     
     -- 其他情况
     _ -> 
@@ -37,7 +41,7 @@ main = do
 -- Html.Title -> 网页标题 
 -- String -> 待解析文本
 process :: Html.Title -> String -> String
-process title = Html.render . convert title . Markup.parse
+process title = Html.renderHtml . convert title . Markup.parse
 
 
 confirm :: IO Bool
